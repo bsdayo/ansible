@@ -1,0 +1,38 @@
+- name: Check if Ferium exists
+  ansible.builtin.stat:
+    path: /usr/local/bin/ferium
+  register: _minecraft_tools_ferium_file
+
+- name: (Local) Get Ferium releases
+  when: not _minecraft_tools_ferium_file.stat.exists
+  delegate_to: localhost
+  run_once: true
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/gorilla-devs/ferium/releases/latest
+    return_content: true
+  register: _minecraft_tools_ferium_releases_resp
+
+- name: (Local) Get appropriate Ferium release
+  when: not _minecraft_tools_ferium_file.stat.exists
+  delegate_to: localhost
+  run_once: true
+  ansible.builtin.set_fact:
+    _minecraft_tools_ferium_release: >-
+      {{ _minecraft_tools_ferium_releases_resp.json.assets
+        | selectattr('name', '==', 'ferium-linux-nogui.zip')
+        | first }}
+
+- name: Install unzip
+  when: not _minecraft_tools_ferium_file.stat.exists
+  ansible.builtin.apt:
+    name: unzip
+    update_cache: true
+
+- name: Download Ferium
+  when: not _minecraft_tools_ferium_file.stat.exists
+  ansible.builtin.unarchive:
+    remote_src: true
+    src: '{{ _minecraft_tools_ferium_release.browser_download_url }}'
+    include: ferium
+    dest: /usr/local/bin/
+    mode: '0755'

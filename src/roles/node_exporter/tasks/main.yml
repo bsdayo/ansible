@@ -1,0 +1,28 @@
+- name: Ensure system is Debian 13 or later
+  ansible.builtin.assert:
+    that:
+      - ansible_distribution == "Debian" and ansible_distribution_major_version | int >= 13
+
+- name: Install node_exporter
+  ansible.builtin.apt:
+    name: prometheus-node-exporter
+    update_cache: true
+
+- name: Create metrics directory
+  ansible.builtin.file:
+    path: /var/lib/metrics
+    state: directory
+    mode: '0755'
+
+- name: Copy environment config
+  ansible.builtin.copy:
+    src: node_exporter.env
+    dest: /etc/default/prometheus-node-exporter
+    mode: '0644'
+
+- name: Restart node_exporter service
+  ansible.builtin.systemd:
+    name: prometheus-node-exporter
+    state: restarted
+    enabled: true
+    daemon_reload: true

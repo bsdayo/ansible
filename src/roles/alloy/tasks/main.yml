@@ -1,0 +1,41 @@
+- name: Ensure system is Debian
+  ansible.builtin.assert:
+    that:
+      - ansible_distribution == "Debian"
+
+- name: Add Grafana repository (TUNA mirror)
+  ansible.builtin.deb822_repository:
+    name: grafana
+    uris: https://mirrors.tuna.tsinghua.edu.cn/grafana/apt/
+    suites: stable
+    components: main
+    signed_by: https://apt.grafana.com/gpg.key
+
+- name: Install Alloy
+  ansible.builtin.apt:
+    name: alloy
+    update_cache: true
+
+- name: Include entire directory as config
+  ansible.builtin.replace:
+    path: /etc/default/alloy
+    regexp: '^CONFIG_FILE=.*$'
+    replace: 'CONFIG_FILE="/etc/alloy"'
+
+- name: Copy Alloy config
+  ansible.builtin.copy:
+    src: config.alloy
+    dest: /etc/alloy/config.alloy
+    mode: '0644'
+
+- name: Create metrics directory for textfile collector
+  ansible.builtin.file:
+    path: /var/lib/metrics
+    state: directory
+    mode: '0755'
+
+- name: Enable and reload Alloy service
+  ansible.builtin.systemd_service:
+    name: alloy
+    enabled: true
+    state: restarted

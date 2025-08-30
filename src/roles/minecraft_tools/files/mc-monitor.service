@@ -1,0 +1,8 @@
+[Service]
+ExecStart=/usr/local/bin/mc-monitor
+Restart=on-failure
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

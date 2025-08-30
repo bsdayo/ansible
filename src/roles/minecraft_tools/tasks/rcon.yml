@@ -1,0 +1,33 @@
+- name: Check if rcon-cli exists
+  ansible.builtin.stat:
+    path: /usr/local/bin/rcon
+  register: _minecraft_tools_rcon_file
+
+- name: (Local) Get rcon-cli releases
+  when: not _minecraft_tools_rcon_file.stat.exists
+  delegate_to: localhost
+  run_once: true
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/gorcon/rcon-cli/releases/latest
+    return_content: true
+  register: _minecraft_tools_rcon_releases_resp
+
+- name: (Local) Get appropriate rcon-cli release
+  when: not _minecraft_tools_rcon_file.stat.exists
+  delegate_to: localhost
+  run_once: true
+  ansible.builtin.set_fact:
+    _minecraft_tools_rcon_release: >-
+      {{ _minecraft_tools_rcon_releases_resp.json.assets
+        | selectattr('name', 'search', 'amd64_linux.tar.gz')
+        | first }}
+
+- name: Download rcon-cli
+  when: not _minecraft_tools_rcon_file.stat.exists
+  ansible.builtin.unarchive:
+    remote_src: true
+    src: '{{ _minecraft_tools_rcon_release.browser_download_url }}'
+    include: '{{ _minecraft_tools_rcon_release.name | splitext | first | splitext | first }}/rcon'
+    dest: /usr/local/bin/
+    mode: '0755'
+    extra_opts: --strip-components=1

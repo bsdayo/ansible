@@ -1,13 +1,13 @@
 - name: Populate service facts
   ansible.builtin.service_facts:
 
-- name: Template Alloy config for prometheus-exporter
+- name: Template Alloy config
   ansible.builtin.template:
     src: minecraft.alloy.j2
     dest: /etc/alloy/minecraft.alloy
     mode: '0644'
 
-- name: Reload Alloy service if present
+- name: Restart Alloy service if present
   ansible.builtin.systemd_service:
     name: alloy
     state: restarted

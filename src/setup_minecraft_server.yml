@@ -1,6 +1,9 @@
 - name: Setup Minecraft Server
   hosts: minecraft
   roles:
-    - temurin
-    - alloy
-    - minecraft_tools
+    - role: temurin
+      tags: temurin
+    - role: alloy
+      tags: alloy
+    - role: minecraft_tools
+      tags: minecraft_tools

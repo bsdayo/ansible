@@ -2,6 +2,12 @@ prometheus.scrape "minecraft" {
 	targets = [
 		{"__address__" = "127.0.0.1:19565", instance = "{{ ansible_hostname }}"},
 	]
-	forward_to      = [prometheus.remote_write.default.receiver]
+	forward_to      = [prometheus.remote_write.main.receiver]
 	scrape_interval = "10s"
+}
+
+loki.source.journal "minecraft" {
+	matches    = "_SYSTEMD_UNIT={{ ansible_hostname }}.service"
+	labels     = {service_name = "{{ ansible_hostname }}"}
+	forward_to = [loki.write.main.receiver]
 }

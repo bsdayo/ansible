@@ -11,6 +11,7 @@
 
 - name: Configure Alloy
   ansible.builtin.import_tasks: alloy.yml
+  tags: alloy
 
 - name: Install mc-monitor
   ansible.builtin.import_tasks: mc-monitor.yml

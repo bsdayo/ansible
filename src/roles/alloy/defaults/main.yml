@@ -1,0 +1,2 @@
+alloy_custom_args: --disable-reporting
+alloy_unix_exporter_enabled: true

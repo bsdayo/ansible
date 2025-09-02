@@ -1,0 +1,11 @@
+prometheus.exporter.unix "main" {
+	textfile {
+		directory = "/var/lib/metrics"
+	}
+}
+
+prometheus.scrape "unix" {
+	targets         = prometheus.exporter.unix.main.targets
+	forward_to      = [prometheus.remote_write.main.receiver]
+	scrape_interval = "10s"
+}

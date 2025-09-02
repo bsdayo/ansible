@@ -1,0 +1,11 @@
+prometheus.remote_write "main" {
+	endpoint {
+		url = "https://prom.i.bsdayo.moe/api/v1/write"
+	}
+}
+
+loki.write "main" {
+	endpoint {
+		url = "https://loki.i.bsdayo.moe/loki/api/v1/push"
+	}
+}

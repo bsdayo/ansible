@@ -22,11 +22,29 @@
     regexp: '^CONFIG_FILE=.*$'
     replace: 'CONFIG_FILE="/etc/alloy"'
 
-- name: Copy Alloy config
+- name: Add custom args
+  ansible.builtin.replace:
+    path: /etc/default/alloy
+    regexp: '^CUSTOM_ARGS=.*$'
+    replace: 'CUSTOM_ARGS="{{ alloy_custom_args }}"'
+
+- name: Delete old config
+  ansible.builtin.file:
+    path: /etc/alloy/config.alloy
+    state: absent
+
+- name: Copy endpoints config
   ansible.builtin.copy:
-    src: config.alloy
-    dest: /etc/alloy/config.alloy
+    src: endpoints.alloy
+    dest: /etc/alloy/endpoints.alloy
     mode: '0644'
+
+- name: Copy unix exporter config
+  ansible.builtin.copy:
+    src: unix.alloy
+    dest: /etc/alloy/unix.alloy
+    mode: '0644'
+  when: alloy_unix_exporter_enabled
 
 - name: Create metrics directory for textfile collector
   ansible.builtin.file:

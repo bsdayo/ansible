@@ -1,5 +1,6 @@
 - name: Setup Minecraft Server
   hosts: minecraft
+  become: true
   roles:
     - role: temurin
       tags: temurin

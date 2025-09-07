@@ -1,5 +1,6 @@
 - name: Set package mirror
   hosts: all
+  become: true
   tasks:
     - name: Ensure system is Debian
       ansible.builtin.assert:

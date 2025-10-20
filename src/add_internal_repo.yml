@@ -1,0 +1,21 @@
+- name: Add internal Debian repository
+  hosts: all
+  become: true
+  tasks:
+    - name: Add internal repository
+      ansible.builtin.deb822_repository:
+        name: internal
+        types: deb
+        uris: https://dev.i.bsdayo.moe/api/packages/bsdayo/debian
+        suites: stable
+        components: main
+        signed_by: https://dev.i.bsdayo.moe/api/packages/bsdayo/debian/repository.key
+
+    - name: Set higher priority for internal repository
+      ansible.builtin.copy:
+        content: |
+          Package: *
+          Pin: origin dev.i.bsdayo.moe
+          Pin-Priority: 600
+        dest: /etc/apt/preferences.d/internal.pref
+        mode: '0644'

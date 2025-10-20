@@ -1,0 +1,25 @@
+- name: Set package mirror
+  hosts: all
+  become: true
+  tasks:
+    - name: Ensure system is Debian
+      ansible.builtin.assert:
+        that:
+          - ansible_distribution == "Debian"
+
+    - name: Find all source files
+      ansible.builtin.find:
+        paths: /etc/apt
+        patterns: '*.list,*.sources'
+        recurse: true
+      register: source_files
+
+    - name: Replace official Debian mirror with USTC mirror
+      ansible.builtin.replace:
+        path: '{{ item.path }}'
+        regexp: deb.debian.org
+        replace: mirrors.ustc.edu.cn
+        backup: true
+      loop: '{{ source_files.files }}'
+      loop_control:
+        label: '{{ item.path }}'
